@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>nyelsu</title>
-<meta name="description" content="Official website Nama Kamu.">
-<meta property="og:title" content="Nama Kamu">
+<meta name="description" content="Official website nyelsu.">
+<meta property="og:title" content="nyelsu">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
@@ -48,33 +48,42 @@ footer{margin-top:40px;color:var(--mute);font-size:.8rem;line-height:1.7}
 <body>
 <div id="bg"></div>
 <canvas id="snow"></canvas>
-<button id="splash" type="button"><small id="splashTitle"></small><span id="splashText"></span></button>
+<button id="splash" type="button"><small id="splashTitle">Private Experience</small><span id="splashText">TAP ANYWHERE</span></button>
 <main id="app"></main>
 <button id="mute" type="button" aria-label="Matikan musik"><i class="fa-solid fa-volume-high"></i></button>
+
+<!-- Kalau ada error di kode, pesannya tampil di layar (teks merah) -->
+<script>
+window.addEventListener("error", function (e) {
+  var s = document.getElementById("splash");
+  if (s) s.remove();
+  var d = document.createElement("pre");
+  d.style.cssText = "position:relative;z-index:20;color:#ff8a8a;padding:20px;white-space:pre-wrap;font:14px monospace";
+  d.textContent = "Ada error di index.html: " + e.message + " (baris " + e.lineno + ")";
+  document.body.appendChild(d);
+});
+</script>
 
 <script>
 /* ===== EDIT BAGIAN INI SAJA ===== */
 const CONFIG = {
   name: "nyelsu",
   tagline: "yo watsap bradar.",
-  avatar: "avatar.jpg",      // upload ke repo yang sama, atau pakai URL
-  background: "bag.jpg",            // contoh: "bg.gif" atau URL gambar; kosong = hitam polos
-  music: "music.m4a",                 // contoh: "lagu.mp3"; kosong = tanpa musik
-  snow: true,                // false = salju mati
+  avatar: "avatar.jpg",
+  background: "bag.jpg",
+  music: "music.m4a",
+  snow: true,
   splashTitle: "Private Experience",
   splashText: "TAP ANYWHERE",
-  handle: "",        // kosongkan kalau tidak mau kotak profil
-  badge: "",             // kosongkan kalau tidak mau badge
-  status: "",   // kosongkan kalau tidak perlu
-  // icon = nama ikon Font Awesome brands (tiktok, youtube, discord, instagram, github, x-twitter, ...)
+  handle: "",
+  badge: "",
+  status: "",
   socials: [
     { icon: "tiktok",  url: "https://tiktok.com/@nyelfvck" },
     { icon: "youtube", url: "https://youtube.com/@nyelsu" },
     { icon: "discord", url: "https://discord.com/users/1145608106533982258" }
   ],
-  // icon di link boleh kosong; pakai ikon Font Awesome solid/brands, contoh "fa-solid fa-cart-shopping"
   sections: [
-    sections: [
     { title: "", links: [
       { icon: "fa-solid fa-link",     title: "Saweria",        desc: "Support admin",          url: "https://saweria.co/Rasya1st" },
       { icon: "fa-brands fa-discord", title: "TOMOMAJI SA-MP", desc: "Discord SAMP Community", url: "https://discord.gg/edvQjQtq" }
