@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nama Kamu</title>
+<meta name="description" content="Official website Nama Kamu.">
+<meta property="og:title" content="Nama Kamu">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+:root{--ink:#fff;--mute:#9a9a9a;--card:rgba(255,255,255,.05);--line:rgba(255,255,255,.12)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:#000;color:var(--ink);font-family:Poppins,system-ui,sans-serif}
+#bg{position:fixed;inset:0;z-index:-2;background:center/cover no-repeat}
+#bg::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.72)}
+#snow{position:fixed;inset:0;z-index:-1;pointer-events:none}
+main{max-width:480px;margin:0 auto;padding:56px 20px 80px;text-align:center}
+.avatar{width:116px;height:116px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.28);box-shadow:0 0 36px rgba(255,255,255,.14)}
+h1{font-size:1.8rem;font-weight:700;margin:18px 0 4px}
+.tag{color:var(--mute);font-size:.9rem;margin:0 0 16px}
+.socials{display:flex;justify-content:center;gap:12px;margin-bottom:22px}
+.socials a{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:1.15rem;transition:background .15s,transform .15s}
+.socials a:hover,.socials a:focus-visible{background:rgba(255,255,255,.14);transform:translateY(-2px);outline:none}
+.profile{display:inline-block;padding:10px 18px;border-radius:14px;border:1px solid var(--line);background:var(--card);margin-bottom:26px;line-height:1.5}
+.handle{font-weight:600;font-size:.95rem}
+.badge{margin-left:6px;padding:2px 8px;border-radius:6px;background:#fff;color:#000;font-size:.7rem;font-weight:700;vertical-align:middle}
+.status{color:var(--mute);font-size:.82rem}
+h2{font-size:.75rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin:30px 0 12px}
+.link{display:flex;align-items:center;gap:14px;text-align:left;padding:13px 16px;margin-bottom:10px;border-radius:16px;border:1px solid var(--line);background:var(--card);color:inherit;text-decoration:none;transition:background .15s,transform .15s}
+.link:hover,.link:focus-visible{background:rgba(255,255,255,.1);transform:translateY(-2px);outline:none}
+.ico{flex:none;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:rgba(255,255,255,.08);font-size:1.1rem}
+.link b{display:block;font-size:.95rem;font-weight:600}
+.link span{display:block;color:var(--mute);font-size:.8rem}
+footer{margin-top:40px;color:var(--mute);font-size:.8rem;line-height:1.7}
+#splash{position:fixed;inset:0;z-index:10;width:100%;border:0;background:#000;color:#fff;font-family:inherit;cursor:pointer;transition:opacity .6s}
+#splash small{display:block;color:var(--mute);font-size:.8rem;letter-spacing:.2em;margin-bottom:10px}
+#splash span{display:block;font-size:1.15rem;font-weight:600;letter-spacing:.3em;animation:pulse 1.8s ease-in-out infinite}
+#splash.out{opacity:0;pointer-events:none}
+@keyframes pulse{50%{opacity:.3}}
+#mute{position:fixed;right:16px;bottom:16px;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:rgba(0,0,0,.6);color:#fff;font-size:1.1rem;cursor:pointer;display:none}
+#mute:focus-visible{outline:2px solid #fff}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<canvas id="snow"></canvas>
+<button id="splash" type="button"><small id="splashTitle"></small><span id="splashText"></span></button>
+<main id="app"></main>
+<button id="mute" type="button" aria-label="Matikan musik"><i class="fa-solid fa-volume-high"></i></button>
+
+<script>
+/* ===== EDIT BAGIAN INI SAJA ===== */
+const CONFIG = {
+  name: "Nama Kamu",
+  tagline: "Tulis kutipan atau bio singkatmu di sini.",
+  avatar: "avatar.jpg",      // upload ke repo yang sama, atau pakai URL
+  background: "",            // contoh: "bg.gif" atau URL gambar; kosong = hitam polos
+  music: "",                 // contoh: "lagu.mp3"; kosong = tanpa musik
+  snow: true,                // false = salju mati
+  splashTitle: "Private Experience",
+  splashText: "TAP ANYWHERE",
+  handle: "username",        // kosongkan kalau tidak mau kotak profil
+  badge: "DEV+",             // kosongkan kalau tidak mau badge
+  status: "Playing sesuatu yang seru",   // kosongkan kalau tidak perlu
+  // icon = nama ikon Font Awesome brands (tiktok, youtube, discord, instagram, github, x-twitter, ...)
+  socials: [
+    { icon: "tiktok",  url: "https://tiktok.com/@username" },
+    { icon: "youtube", url: "https://youtube.com/@username" },
+    { icon: "discord", url: "https://discord.com/users/123456789" }
+  ],
+  // icon di link boleh kosong; pakai ikon Font Awesome solid/brands, contoh "fa-solid fa-cart-shopping"
+  sections: [
+    { title: "", links: [
+      { icon: "fa-solid fa-link",         title: "Order Link Bio",    desc: "Mau link bio kayak gini? Kepoin di sini!", url: "https://example.com" },
+      { icon: "fa-solid fa-heart",        title: "Sociabuzz",         desc: "Mediashare on! Notif muncul di layar",     url: "https://sociabuzz.com/username" },
+      { icon: "fa-brands fa-discord",     title: "Komunitas Discord", desc: "Official Discord Community",               url: "https://discord.gg/xxxx" },
+      { icon: "fa-solid fa-cart-shopping",title: "Toko",              desc: "Halaman pembelian",                        url: "https://example.com/toko" }
+    ]},
+    { title: "Community Partners", links: [
+      { icon: "fa-brands fa-discord", title: "Komunitas A", desc: "Deskripsi singkat", url: "https://discord.gg/aaaa" },
+      { icon: "fa-brands fa-discord", title: "Komunitas B", desc: "Deskripsi singkat", url: "https://discord.gg/bbbb" }
+    ]},
+    { title: "Advertise Here", links: [
+      { icon: "fa-solid fa-plus", title: "Slot kosong", desc: "Mau pasang link sirkel kamu? Klik ini!", url: "https://discord.com/users/123456789" }
+    ]}
+  ]
+};
+/* ================================= */
+
+const $ = id => document.getElementById(id);
+function el(tag, cls, text, attrs) {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text) n.textContent = text;
+  if (attrs) for (const k in attrs) n.setAttribute(k, attrs[k]);
+  return n;
+}
+function ext(a) { a.target = "_blank"; a.rel = "noopener noreferrer"; return a; }
+
+document.title = CONFIG.name;
+$("splashTitle").textContent = CONFIG.splashTitle;
+$("splashText").textContent = CONFIG.splashText;
+if (CONFIG.background) $("bg").style.backgroundImage = 'url("' + CONFIG.background + '")';
+else $("bg").style.display = "none";
+
+const app = $("app");
+if (CONFIG.avatar) {
+  const img = el("img", "avatar", "", { src: CONFIG.avatar, alt: CONFIG.name });
+  img.onerror = () => img.remove();
+  app.append(img);
+}
+app.append(el("h1", "", CONFIG.name), el("p", "tag", CONFIG.tagline));
+
+const soc = el("div", "socials");
+CONFIG.socials.forEach(s => {
+  const a = ext(el("a", "", "", { href: s.url, "aria-label": s.icon }));
+  a.append(el("i", "fa-brands fa-" + s.icon));
+  soc.append(a);
+});
+app.append(soc);
+
+if (CONFIG.handle) {
+  const p = el("div", "profile");
+  const h = el("div", "handle", CONFIG.handle);
+  if (CONFIG.badge) h.append(el("span", "badge", CONFIG.badge));
+  p.append(h);
+  if (CONFIG.status) p.append(el("div", "status", CONFIG.status));
+  app.append(p);
+}
+
+CONFIG.sections.forEach(sec => {
+  if (sec.title) app.append(el("h2", "", sec.title));
+  sec.links.forEach(l => {
+    const a = ext(el("a", "link", "", { href: l.url }));
+    if (l.icon) { const i = el("div", "ico"); i.append(el("i", l.icon)); a.append(i); }
+    const t = el("div");
+    t.append(el("b", "", l.title));
+    if (l.desc) t.append(el("span", "", l.desc));
+    a.append(t);
+    app.append(a);
+  });
+});
+const f = el("footer");
+f.append("© " + new Date().getFullYear() + " " + CONFIG.name, document.createElement("br"), "Built with ❤️");
+app.append(f);
+
+/* Salju di belakang konten */
+(function () {
+  if (!CONFIG.snow) return;
+  const c = $("snow"), x = c.getContext("2d");
+  const still = matchMedia("(prefers-reduced-motion:reduce)").matches;
+  let w, h, flakes = [];
+  const make = () => ({
+    x: Math.random() * w, y: Math.random() * h,
+    r: Math.random() * 2.4 + 0.8, v: Math.random() * 0.9 + 0.4,
+    p: Math.random() * 6.28, s: Math.random() * 0.02 + 0.005, a: Math.random() * 0.5 + 0.4
+  });
+  function size() {
+    const d = window.devicePixelRatio || 1;
+    w = innerWidth; h = innerHeight;
+    c.width = w * d; c.height = h * d;
+    x.setTransform(d, 0, 0, d, 0, 0);
+    const n = Math.min(180, Math.round(w * h / 9000));
+    while (flakes.length < n) flakes.push(make());
+    flakes.length = Math.min(flakes.length, n);
+  }
+  function draw() {
+    x.clearRect(0, 0, w, h);
+    x.fillStyle = "#fff";
+    for (const f of flakes) {
+      x.globalAlpha = f.a; x.beginPath(); x.arc(f.x, f.y, f.r, 0, 6.283); x.fill();
+    }
+  }
+  function tick() {
+    for (const f of flakes) {
+      f.p += f.s; f.y += f.v; f.x += Math.sin(f.p) * 0.5;
+      if (f.y > h + 5) { f.y = -5; f.x = Math.random() * w; }
+      if (f.x > w + 5) f.x = -5;
+      if (f.x < -5) f.x = w + 5;
+    }
+    draw(); requestAnimationFrame(tick);
+  }
+  addEventListener("resize", () => { size(); if (still) draw(); });
+  size();
+  still ? draw() : tick();
+})();
+
+/* Splash + musik: browser baru mengizinkan suara setelah pengunjung mengetuk */
+let audio = null;
+const mute = $("mute");
+if (CONFIG.music) { audio = new Audio(CONFIG.music); audio.loop = true; mute.style.display = "block"; }
+function syncMute() {
+  const on = audio && !audio.paused;
+  mute.innerHTML = '<i class="fa-solid ' + (on ? "fa-volume-high" : "fa-volume-xmark") + '"></i>';
+  mute.setAttribute("aria-label", on ? "Matikan musik" : "Nyalakan musik");
+}
+$("splash").addEventListener("click", () => {
+  $("splash").classList.add("out");
+  if (audio) audio.play().then(syncMute).catch(syncMute);
+});
+mute.addEventListener("click", () => {
+  if (!audio) return;
+  audio.paused ? audio.play() : audio.pause();
+  syncMute();
+});
+syncMute();
+</script>
+</body>
+</html>
