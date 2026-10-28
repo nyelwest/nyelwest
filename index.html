@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>nyelsu</title>
 <meta name="description" content="Official website nyelsu.">
+<meta name="theme-color" content="#000000">
 <meta property="og:title" content="nyelsu">
+<meta property="og:description" content="Official website nyelsu.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
@@ -24,10 +26,12 @@ h1{font-size:1.8rem;font-weight:700;margin:18px 0 4px}
 .socials{display:flex;justify-content:center;gap:12px;margin-bottom:22px}
 .socials a{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:1.15rem;transition:background .15s,transform .15s}
 .socials a:hover,.socials a:focus-visible{background:rgba(255,255,255,.14);transform:translateY(-2px);outline:none}
-.profile{display:inline-block;padding:10px 18px;border-radius:14px;border:1px solid var(--line);background:var(--card);margin-bottom:26px;line-height:1.5}
+.profile{display:inline-block;max-width:100%;padding:10px 18px;border-radius:14px;border:1px solid var(--line);background:var(--card);margin-bottom:26px;line-height:1.5}
 .handle{font-weight:600;font-size:.95rem}
 .badge{margin-left:6px;padding:2px 8px;border-radius:6px;background:#fff;color:#000;font-size:.7rem;font-weight:700;vertical-align:middle}
-.status{color:var(--mute);font-size:.82rem}
+.status{color:var(--mute);font-size:.82rem;overflow-wrap:anywhere}
+.dot{display:inline-block;width:9px;height:9px;margin-right:8px;border-radius:50%;background:#747f8d}
+.dot.online{background:#3ba55d}.dot.idle{background:#faa61a}.dot.dnd{background:#ed4245}
 h2{font-size:.75rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin:30px 0 12px}
 .link{display:flex;align-items:center;gap:14px;text-align:left;padding:13px 16px;margin-bottom:10px;border-radius:16px;border:1px solid var(--line);background:var(--card);color:inherit;text-decoration:none;transition:background .15s,transform .15s}
 .link:hover,.link:focus-visible{background:rgba(255,255,255,.1);transform:translateY(-2px);outline:none}
@@ -40,8 +44,11 @@ footer{margin-top:40px;color:var(--mute);font-size:.8rem;line-height:1.7}
 #splash span{display:block;font-size:1.15rem;font-weight:600;letter-spacing:.3em;animation:pulse 1.8s ease-in-out infinite}
 #splash.out{opacity:0;pointer-events:none}
 @keyframes pulse{50%{opacity:.3}}
-#mute{position:fixed;right:16px;bottom:16px;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:rgba(0,0,0,.6);color:#fff;font-size:1.1rem;cursor:pointer;display:none}
-#mute:focus-visible{outline:2px solid #fff}
+#mute,#tglSnow{position:fixed;bottom:16px;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:rgba(0,0,0,.6);color:#fff;font-size:1.1rem;cursor:pointer;display:none}
+#mute{right:16px}
+#tglSnow{right:70px}
+#tglSnow.off{opacity:.45}
+#mute:focus-visible,#tglSnow:focus-visible{outline:2px solid #fff}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -50,6 +57,7 @@ footer{margin-top:40px;color:var(--mute);font-size:.8rem;line-height:1.7}
 <canvas id="snow"></canvas>
 <button id="splash" type="button"><small id="splashTitle">Private Experience</small><span id="splashText">TAP ANYWHERE</span></button>
 <main id="app"></main>
+<button id="tglSnow" type="button" aria-label="Matikan salju" aria-pressed="true"><i class="fa-solid fa-snowflake"></i></button>
 <button id="mute" type="button" aria-label="Matikan musik"><i class="fa-solid fa-volume-high"></i></button>
 
 <!-- Kalau ada error di kode, pesannya tampil di layar (teks merah) -->
@@ -72,7 +80,9 @@ const CONFIG = {
   avatar: "avatar.jpg",
   background: "bag.jpg",
   music: "music.m4a",
+  volume: 0.5,                          // 0 sampai 1
   snow: true,
+  discordId: "1145608106533982258",     // status Discord live (perlu join server Lanyard), kosongkan untuk mematikan
   splashTitle: "Private Experience",
   splashText: "TAP ANYWHERE",
   handle: "",
@@ -152,14 +162,40 @@ const f = el("footer");
 f.append("© " + new Date().getFullYear() + " " + CONFIG.name, document.createElement("br"), "Built with ❤️");
 app.append(f);
 
-/* Salju di belakang konten */
+/* Status Discord live lewat Lanyard (gagal = bagian ini tidak muncul) */
+(async function () {
+  if (!CONFIG.discordId || CONFIG.handle) return;
+  try {
+    const r = await fetch("https://api.lanyard.rest/v1/users/" + CONFIG.discordId);
+    const j = await r.json();
+    if (!j.success) return;
+    const d = j.data, u = d.discord_user || {};
+    const act = (d.activities || []).find(a => a.type === 0);
+    const custom = (d.activities || []).find(a => a.type === 4);
+    const label = { online: "Online", idle: "Idle", dnd: "Do not disturb", offline: "Offline" };
+    let line = label[d.discord_status] || "Offline";
+    if (d.listening_to_spotify && d.spotify) line = "Mendengarkan " + d.spotify.song + " oleh " + d.spotify.artist;
+    else if (act) line = "Bermain " + act.name;
+    else if (custom && custom.state) line = custom.state;
+    const p = el("div", "profile");
+    const h = el("div", "handle");
+    h.append(el("span", "dot " + d.discord_status), u.global_name || u.username || CONFIG.name);
+    p.append(h, el("div", "status", line));
+    soc.after(p);
+  } catch (e) { /* offline atau diblokir: abaikan */ }
+})();
+
+/* Salju di belakang konten: selalu bergerak, pelan kalau OS minta kurangi animasi, menghindari kursor */
 (function () {
   if (!CONFIG.snow) return;
-  const c = $("snow"), x = c.getContext("2d");
-  const still = matchMedia("(prefers-reduced-motion:reduce)").matches;
-  let w, h, flakes = [];
+  const c = $("snow"), x = c.getContext("2d"), btn = $("tglSnow");
+  const calm = matchMedia("(prefers-reduced-motion:reduce)").matches;
+  const k = calm ? 0.35 : 1;
+  let on = true, raf = 0, w, h, flakes = [];
+  const mouse = { x: -999, y: -999 };
+  try { on = localStorage.getItem("snow") !== "off"; } catch (e) {}
   const make = () => ({
-    x: Math.random() * w, y: Math.random() * h,
+    x: Math.random() * w, y: Math.random() * h, kx: 0, ky: 0,
     r: Math.random() * 2.4 + 0.8, v: Math.random() * 0.9 + 0.4,
     p: Math.random() * 6.28, s: Math.random() * 0.02 + 0.005, a: Math.random() * 0.5 + 0.4
   });
@@ -168,35 +204,60 @@ app.append(f);
     w = innerWidth; h = innerHeight;
     c.width = w * d; c.height = h * d;
     x.setTransform(d, 0, 0, d, 0, 0);
-    const n = Math.min(180, Math.round(w * h / 9000));
+    const n = Math.min(180, Math.round(w * h / 9000)) * (calm ? 0.6 : 1) | 0;
     while (flakes.length < n) flakes.push(make());
     flakes.length = Math.min(flakes.length, n);
   }
-  function draw() {
+  function frame() {
     x.clearRect(0, 0, w, h);
     x.fillStyle = "#fff";
     for (const f of flakes) {
-      x.globalAlpha = f.a; x.beginPath(); x.arc(f.x, f.y, f.r, 0, 6.283); x.fill();
-    }
-  }
-  function tick() {
-    for (const f of flakes) {
-      f.p += f.s; f.y += f.v; f.x += Math.sin(f.p) * 0.5;
+      f.p += f.s * k;
+      f.y += f.v * k + f.ky;
+      f.x += Math.sin(f.p) * 0.5 * k + f.kx;
+      const dx = f.x - mouse.x, dy = f.y - mouse.y, d2 = dx * dx + dy * dy;
+      if (d2 < 10000 && d2 > 1) {
+        const d = Math.sqrt(d2), push = (100 - d) / 100 * 1.6;
+        f.kx += dx / d * push; f.ky += dy / d * push;
+      }
+      f.kx *= 0.92; f.ky *= 0.92;
       if (f.y > h + 5) { f.y = -5; f.x = Math.random() * w; }
       if (f.x > w + 5) f.x = -5;
       if (f.x < -5) f.x = w + 5;
+      x.globalAlpha = f.a; x.beginPath(); x.arc(f.x, f.y, f.r, 0, 6.283); x.fill();
     }
-    draw(); requestAnimationFrame(tick);
+    raf = requestAnimationFrame(frame);
   }
-  addEventListener("resize", () => { size(); if (still) draw(); });
-  size();
-  still ? draw() : tick();
+  function apply() {
+    btn.classList.toggle("off", !on);
+    btn.setAttribute("aria-pressed", on);
+    btn.setAttribute("aria-label", on ? "Matikan salju" : "Nyalakan salju");
+    cancelAnimationFrame(raf);
+    if (on) frame(); else x.clearRect(0, 0, w, h);
+  }
+  addEventListener("resize", size);
+  addEventListener("pointermove", e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+  const away = () => { mouse.x = mouse.y = -999; };
+  document.documentElement.addEventListener("mouseleave", away);
+  addEventListener("touchend", away);
+  btn.addEventListener("click", () => {
+    on = !on;
+    try { localStorage.setItem("snow", on ? "on" : "off"); } catch (e) {}
+    apply();
+  });
+  btn.style.display = "block";
+  size(); apply();
 })();
 
 /* Splash + musik: browser baru mengizinkan suara setelah pengunjung mengetuk */
 let audio = null;
 const mute = $("mute");
-if (CONFIG.music) { audio = new Audio(CONFIG.music); audio.loop = true; mute.style.display = "block"; }
+if (CONFIG.music) {
+  audio = new Audio(CONFIG.music);
+  audio.loop = true;
+  audio.volume = CONFIG.volume;
+  mute.style.display = "block";
+}
 function syncMute() {
   const on = audio && !audio.paused;
   mute.innerHTML = '<i class="fa-solid ' + (on ? "fa-volume-high" : "fa-volume-xmark") + '"></i>';
