@@ -83,7 +83,7 @@ const CONFIG = {
   volume: 0.5,                          // 0 sampai 1
   snow: true,
   discordId: "1145608106533982258",     // status Discord live (perlu join server Lanyard), kosongkan untuk mematikan
-  splashTitle: "Private Experience",
+  splashTitle: "Nyel leluhur Getea Woi",
   splashText: "TAP ANYWHERE",
   handle: "",
   badge: "",
@@ -159,7 +159,7 @@ CONFIG.sections.forEach(sec => {
   });
 });
 const f = el("footer");
-f.append("© " + new Date().getFullYear() + " " + CONFIG.name, document.createElement("br"), "Built with ❤️");
+f.append("© " + new Date().getFullYear() + " " + CONFIG.name, document.createElement("br"), "");
 app.append(f);
 
 /* Status Discord live lewat Lanyard (gagal = bagian ini tidak muncul) */
@@ -174,8 +174,8 @@ app.append(f);
     const custom = (d.activities || []).find(a => a.type === 4);
     const label = { online: "Online", idle: "Idle", dnd: "Do not disturb", offline: "Offline" };
     let line = label[d.discord_status] || "Offline";
-    if (d.listening_to_spotify && d.spotify) line = "Mendengarkan " + d.spotify.song + " oleh " + d.spotify.artist;
-    else if (act) line = "Bermain " + act.name;
+    if (d.listening_to_spotify && d.spotify) line = "listen " + d.spotify.song + "by " + d.spotify.artist;
+    else if (act) line = "play  " + act.name;
     else if (custom && custom.state) line = custom.state;
     const p = el("div", "profile");
     const h = el("div", "handle");
