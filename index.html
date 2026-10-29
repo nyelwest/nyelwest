@@ -174,7 +174,7 @@ app.append(f);
     const custom = (d.activities || []).find(a => a.type === 4);
     const label = { online: "Online", idle: "Idle", dnd: "Do not disturb", offline: "Offline" };
     let line = label[d.discord_status] || "Offline";
-    if (d.listening_to_spotify && d.spotify) line = "listen " + d.spotify.song + "by " + d.spotify.artist;
+    if (d.listening_to_spotify && d.spotify) line = "listen " + d.spotify.song + " by " + d.spotify.artist;
     else if (act) line = "play  " + act.name;
     else if (custom && custom.state) line = custom.state;
     const p = el("div", "profile");
