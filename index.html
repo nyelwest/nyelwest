@@ -6,8 +6,13 @@
 <title>nyelsu</title>
 <meta name="description" content="Official website nyelsu.">
 <meta name="theme-color" content="#000000">
+<meta property="og:type" content="website">
 <meta property="og:title" content="nyelsu">
 <meta property="og:description" content="Official website nyelsu.">
+<meta property="og:url" content="https://nyelwest.github.io/nyelwest/">
+<meta property="og:image" content="https://nyelwest.github.io/nyelwest/avatar.jpg">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="avatar.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
@@ -20,9 +25,12 @@ body{margin:0;min-height:100vh;background:#000;color:var(--ink);font-family:Popp
 #bg::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.72)}
 #snow{position:fixed;inset:0;z-index:-1;pointer-events:none}
 main{max-width:480px;margin:0 auto;padding:56px 20px 80px;text-align:center}
+main:not(.go)>*{opacity:0}
+main.go>*{animation:rise .6s backwards}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
 .avatar{width:116px;height:116px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.28);box-shadow:0 0 36px rgba(255,255,255,.14)}
 h1{font-size:1.8rem;font-weight:700;margin:18px 0 4px}
-.tag{color:var(--mute);font-size:.9rem;margin:0 0 16px}
+.tag{color:var(--mute);font-size:.9rem;margin:0 0 16px;min-height:1.4em}
 .socials{display:flex;justify-content:center;gap:12px;margin-bottom:22px}
 .socials a{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:1.15rem;transition:background .15s,transform .15s}
 .socials a:hover,.socials a:focus-visible{background:rgba(255,255,255,.14);transform:translateY(-2px);outline:none}
@@ -33,11 +41,21 @@ h1{font-size:1.8rem;font-weight:700;margin:18px 0 4px}
 .dot{display:inline-block;width:9px;height:9px;margin-right:8px;border-radius:50%;background:#747f8d}
 .dot.online{background:#3ba55d}.dot.idle{background:#faa61a}.dot.dnd{background:#ed4245}
 h2{font-size:.75rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin:30px 0 12px}
-.link{display:flex;align-items:center;gap:14px;text-align:left;padding:13px 16px;margin-bottom:10px;border-radius:16px;border:1px solid var(--line);background:var(--card);color:inherit;text-decoration:none;transition:background .15s,transform .15s}
+.link{position:relative;overflow:hidden;display:flex;align-items:center;gap:14px;text-align:left;padding:13px 16px;margin-bottom:10px;border-radius:16px;border:1px solid var(--line);background:var(--card);color:inherit;text-decoration:none;transition:background .15s,transform .15s}
+.link::before{content:"";position:absolute;inset:0;background:radial-gradient(220px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.14),transparent 60%);opacity:0;transition:opacity .2s;pointer-events:none}
+.link:hover::before{opacity:1}
 .link:hover,.link:focus-visible{background:rgba(255,255,255,.1);transform:translateY(-2px);outline:none}
 .ico{flex:none;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:rgba(255,255,255,.08);font-size:1.1rem}
 .link b{display:block;font-size:.95rem;font-weight:600}
 .link span{display:block;color:var(--mute);font-size:.8rem}
+.player{display:flex;align-items:center;gap:14px;margin-top:22px;padding:12px 16px;border-radius:16px;border:1px solid var(--line);background:var(--card);text-align:left}
+#pbtn{flex:none;width:40px;height:40px;border-radius:50%;border:0;background:#fff;color:#000;font-size:.9rem;cursor:pointer}
+#pbtn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.pmid{flex:1;min-width:0}
+.pmid b{display:block;margin-bottom:8px;font-size:.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ptrack{height:5px;border-radius:3px;background:rgba(255,255,255,.15);cursor:pointer;overflow:hidden}
+#pfill{width:0;height:100%;background:#fff}
+#bars{flex:none;width:72px;height:28px}
 footer{margin-top:40px;color:var(--mute);font-size:.8rem;line-height:1.7}
 #splash{position:fixed;inset:0;z-index:10;width:100%;border:0;background:#000;color:#fff;font-family:inherit;cursor:pointer;transition:opacity .6s}
 #splash small{display:block;color:var(--mute);font-size:.8rem;letter-spacing:.2em;margin-bottom:10px}
@@ -49,7 +67,8 @@ footer{margin-top:40px;color:var(--mute);font-size:.8rem;line-height:1.7}
 #tglSnow{right:70px}
 #tglSnow.off{opacity:.45}
 #mute:focus-visible,#tglSnow:focus-visible{outline:2px solid #fff}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* Mode "kurangi animasi" di OS: efek tetap jalan, hanya geser-naik diganti fade */
+@media (prefers-reduced-motion:reduce){@keyframes rise{from{opacity:0}}}
 </style>
 </head>
 <body>
@@ -80,7 +99,11 @@ const CONFIG = {
   avatar: "avatar.jpg",
   background: "bag.jpg",
   music: "music.m4a",
+  musicTitle: "Lagu favorit",           // judul yang tampil di player
   volume: 0.5,                          // 0 sampai 1
+  player: true,                         // mini music player (butuh music di atas)
+  tilt: true,                           // kartu miring 3D + kilau ikut kursor
+  typewriter: true,                     // tagline diketik per huruf
   snow: true,
   discordId: "1145608106533982258",     // status Discord live (perlu join server Lanyard), kosongkan untuk mematikan
   splashTitle: "Nyel leluhur Getea Woi",
@@ -127,7 +150,8 @@ if (CONFIG.avatar) {
   img.onerror = () => img.remove();
   app.append(img);
 }
-app.append(el("h1", "", CONFIG.name), el("p", "tag", CONFIG.tagline));
+const tag = el("p", "tag", CONFIG.typewriter ? "" : CONFIG.tagline);
+app.append(el("h1", "", CONFIG.name), tag);
 
 const soc = el("div", "socials");
 CONFIG.socials.forEach(s => {
@@ -158,9 +182,37 @@ CONFIG.sections.forEach(sec => {
     app.append(a);
   });
 });
+
+/* Mini music player */
+if (CONFIG.music && CONFIG.player) {
+  const pl = el("div", "player");
+  pl.innerHTML = '<button id="pbtn" type="button" aria-label="Putar atau jeda"><i class="fa-solid fa-play"></i></button>' +
+    '<div class="pmid"><b></b><div id="ptrack"><div id="pfill"></div></div></div>' +
+    '<canvas id="bars" width="72" height="28"></canvas>';
+  pl.querySelector("b").textContent = CONFIG.musicTitle || "Now playing";
+  app.append(pl);
+}
+
 const f = el("footer");
 f.append("© " + new Date().getFullYear() + " " + CONFIG.name, document.createElement("br"), "");
 app.append(f);
+
+/* Kartu miring 3D + kilau ikut kursor (hanya untuk mouse) */
+if (CONFIG.tilt && matchMedia("(hover:hover) and (pointer:fine)").matches) {
+  app.addEventListener("pointermove", e => {
+    const c = e.target.closest(".link");
+    if (!c) return;
+    const r = c.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+    c.style.setProperty("--mx", px * 100 + "%");
+    c.style.setProperty("--my", py * 100 + "%");
+    c.style.transform = "perspective(700px) rotateX(" + (0.5 - py) * 10 + "deg) rotateY(" + (px - 0.5) * 12 + "deg) translateY(-2px)";
+  });
+  app.addEventListener("pointerout", e => {
+    const c = e.target.closest(".link");
+    if (c && !c.contains(e.relatedTarget)) c.style.transform = "";
+  });
+}
 
 /* Status Discord live lewat Lanyard (gagal = bagian ini tidak muncul) */
 (async function () {
@@ -249,29 +301,90 @@ app.append(f);
   size(); apply();
 })();
 
-/* Splash + musik: browser baru mengizinkan suara setelah pengunjung mengetuk */
-let audio = null;
-const mute = $("mute");
+/* Splash, musik, dan player */
+let audio = null, ctx = null, analyser = null, bRaf = 0;
+const mute = $("mute"), bars = $("bars"), bx = bars ? bars.getContext("2d") : null;
 if (CONFIG.music) {
   audio = new Audio(CONFIG.music);
   audio.loop = true;
   audio.volume = CONFIG.volume;
   mute.style.display = "block";
 }
+// Analyser untuk visualizer; dibuat setelah pengunjung mengetuk (aturan browser)
+function initAudio() {
+  if (ctx || !audio) return;
+  try {
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const src = ctx.createMediaElementSource(audio);
+    analyser = ctx.createAnalyser();
+    analyser.fftSize = 64;
+    src.connect(analyser);
+    analyser.connect(ctx.destination);
+  } catch (e) { ctx = null; analyser = null; }
+}
+function drawBars() {
+  bx.clearRect(0, 0, 72, 28);
+  bx.fillStyle = "#fff";
+  const data = new Uint8Array(32);
+  if (analyser) analyser.getByteFrequencyData(data);
+  for (let i = 0; i < 12; i++) {
+    const v = (data[i + 1] || 0) / 255, hgt = 3 + v * 25;
+    bx.globalAlpha = 0.35 + v * 0.65;
+    bx.fillRect(i * 6, 28 - hgt, 4, hgt);
+  }
+  if (audio && !audio.paused) bRaf = requestAnimationFrame(drawBars);
+}
 function syncMute() {
   const on = audio && !audio.paused;
   mute.innerHTML = '<i class="fa-solid ' + (on ? "fa-volume-high" : "fa-volume-xmark") + '"></i>';
   mute.setAttribute("aria-label", on ? "Matikan musik" : "Nyalakan musik");
+  const pi = document.querySelector("#pbtn i");
+  if (pi) pi.className = "fa-solid " + (on ? "fa-pause" : "fa-play");
+  if (bx) { cancelAnimationFrame(bRaf); if (on) drawBars(); else bx.clearRect(0, 0, 72, 28); }
+}
+function toggleMusic() {
+  if (!audio) return;
+  initAudio();
+  if (ctx) ctx.resume();
+  audio.paused ? audio.play() : audio.pause();
+}
+// Animasi masuk berurutan + tagline diketik, dimulai setelah layar pembuka diketuk
+function startEntrance() {
+  [...app.children].forEach((c, i) => { c.style.animationDelay = i * 80 + "ms"; });
+  app.classList.add("go");
+  if (CONFIG.typewriter) {
+    let i = 0;
+    (function step() {
+      tag.textContent = CONFIG.tagline.slice(0, ++i);
+      if (i < CONFIG.tagline.length) setTimeout(step, 65);
+    })();
+  }
 }
 $("splash").addEventListener("click", () => {
   $("splash").classList.add("out");
-  if (audio) audio.play().then(syncMute).catch(syncMute);
+  startEntrance();
+  if (audio) {
+    initAudio();
+    if (ctx) ctx.resume();
+    audio.play().catch(syncMute);
+  }
 });
-mute.addEventListener("click", () => {
-  if (!audio) return;
-  audio.paused ? audio.play() : audio.pause();
-  syncMute();
-});
+mute.addEventListener("click", toggleMusic);
+if (audio) {
+  audio.addEventListener("play", syncMute);
+  audio.addEventListener("pause", syncMute);
+  const pb = $("pbtn"), tr = $("ptrack"), fl = $("pfill");
+  if (pb) {
+    pb.addEventListener("click", toggleMusic);
+    audio.addEventListener("timeupdate", () => {
+      fl.style.width = (audio.duration ? audio.currentTime / audio.duration * 100 : 0) + "%";
+    });
+    tr.addEventListener("click", e => {
+      const r = tr.getBoundingClientRect();
+      if (isFinite(audio.duration)) audio.currentTime = (e.clientX - r.left) / r.width * audio.duration;
+    });
+  }
+}
 syncMute();
 </script>
 </body>
